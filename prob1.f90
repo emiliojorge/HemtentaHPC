@@ -26,12 +26,9 @@ implicit none  ! recommended
                 
                 norm=1.0d0/dnrm2(n,v,1)
                 call dscal(n,norm,v,1)
-                print*, norm
         end do 
-       ! print*, v
         !call dgemv ('N', n, n, 1.0d0, A, n, v, 1, 0,av ,1)!kan jag anvanda A?
         av=matmul(A,v)
-        !print*, av
         lambda = ddot(n, av, 1, v, 1)
         print*, "lambda is", lambda
         call daxpy(n, -1.0d0*lambda,v,1,av,1) 
