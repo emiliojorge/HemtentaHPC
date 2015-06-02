@@ -14,9 +14,9 @@ program apply_w_main
   double precision, allocatable, dimension(:, :) :: A, S 
 
   if ( debug ) then
-    n = 4 * 2 + 2  ! you can decrease this to check smaller problems
+    n = 4 * 512 + 2  ! you can decrease this to check smaller problems
     repeat = 1
-
+    call omp_set_num_threads(1)
     allocate(A(n, n), stat = status)
     if ( status > 0 ) then
       print*, '*** Error: could not allocate A. Terminating...'
