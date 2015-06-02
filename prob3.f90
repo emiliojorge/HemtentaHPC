@@ -12,23 +12,21 @@ program prob3
         
         double precision :: error,lambda,lambda_old
         n=100
-        print*, "test"
         call MPI_Init(err)
         
         call MPI_Comm_rank(MPI_COMM_WORLD, my_rank, err)
-        call MPI_Comm_size(MPI_COMM_WORLD, 16, err)
+       
          
 
         
         tag = 1
-        row = (my_rank+1)/4+1
+        row = (my_rank)/4+1
         col = mod(my_rank,4)+1
-
+        
         call MPI_Comm_split(MPI_COMM_WORLD, row, 0, My_row_comm, err)
         call MPI_Comm_split(MPI_COMM_WORLD, col+4, 0, My_col_comm, err)
-        
         if(col==row) then
-                call MPI_Comm_split(MPI_COMM_WORLD, 9,root_comm,err)
+                call MPI_Comm_split(MPI_COMM_WORLD, 9,0,root_comm,err)
                 do i=1,n
                         A(i,1)=(col-1)*n+i
                 end do
@@ -37,18 +35,19 @@ program prob3
                 end if
         else 
                 A=(row-col)
+                call MPI_Comm_split(MPI_COMM_WORLD,10,0,root_comm,err)
         end if
-        
         if (my_rank==0) then
                 iter=0
         end if
         x=(1.0d0/400.0d0)
-        
+         
         if (row==col) then
                 call MPI_Comm_rank(My_row_comm,root_rowrank,err)
                 call MPI_Comm_rank(My_col_comm,root_colrank,err)
+        print*, my_rank
                 do i=1,4
-                        if (i/=row) then 
+                        if (i/=row) then
                                 call MPI_Send(root_rowrank,1,MPI_INTEGER,&
                                  my_rank-row+i, tag,MPI_COMM_WORLD)       
                                 call MPI_Send(root_colrank,1,MPI_INTEGER,&
@@ -56,11 +55,13 @@ program prob3
                         end if
                 end do
         else
+               print*, my_rank,5*(row-1),5*(col-1)
                  call MPI_Recv(root_rowrank, 1, MPI_INTEGER,5*(row-1)&
-                                        ,tag,MPI_COMM_WORLD,status)
+                                        ,2,MPI_COMM_WORLD,status)
                  call MPI_Recv(root_colrank, 1, MPI_INTEGER,5*(col-1)&
-                                        ,tag,MPI_COMM_WORLD,status)
+                                        ,3,MPI_COMM_WORLD,status)
         end if
+        print*, "found roots"
         cont=1
         do while (cont==1)
        
