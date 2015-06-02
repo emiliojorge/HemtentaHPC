@@ -1,10 +1,19 @@
-function mtriang
-n = 400;
+function mtriang 
+n = 4000;
 A = triu(randn(n));
 B = triu(randn(n));
 
 tic;
   F = A * B;
+toc
+
+tic
+C=zeros(n);
+  for j=1:n
+	for i=1:n
+	C(i,j)=A(i,:)*B(:,j);
+	end
+  end
 toc
 
 tic
@@ -16,28 +25,20 @@ tic
     end
   end
 toc
-C;
-tic
-  D=zeros(4000);
-  A=A';
-  for j=1:4000
-    for i=1:4000
-    end
-end   
-toc
-
-
 
 tic
-       DOALL J=1,N
-          DO I=1,J
-             DO K=I,J
-                A(I,J)=A(I,J)+B(I,K)*C(K,J)
-             ENDDO
-          ENDDO
-       ENDDO
+D=zeros(n);
+A=A';
+       for J=1:n
+          for I=1:J
+             for K=I:J
+                D(I,J)=D(I,J)+A(K,I)*B(K,J);	
+             end
+          end
+       end
 toc
 error = norm(F - C, 1)
+error = norm(F - D, 1)
 if error > 1e-10
   warning(['The error is large. error = ', num2str(error)])
 end
