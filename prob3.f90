@@ -42,25 +42,25 @@ program prob3
         end if
         x=(1.0d0/400.0d0)
          
-        if (row==col) then
-                call MPI_Comm_rank(My_row_comm,root_rowrank,err)
-                call MPI_Comm_rank(My_col_comm,root_colrank,err)
-        print*, my_rank
-                do i=1,4
-                        if (i/=row) then
-                                call MPI_Send(root_rowrank,1,MPI_INTEGER,&
-                                 my_rank-row+i, tag,MPI_COMM_WORLD)       
-                                call MPI_Send(root_colrank,1,MPI_INTEGER,&
-                                 my_rank-col*4+(i*4), tag,MPI_COMM_WORLD)       
-                        end if
-                end do
-        else
-               print*, my_rank,5*(row-1),5*(col-1)
-                 call MPI_Recv(root_rowrank, 1, MPI_INTEGER,5*(row-1)&
-                                        ,2,MPI_COMM_WORLD,status)
-                 call MPI_Recv(root_colrank, 1, MPI_INTEGER,5*(col-1)&
-                                        ,3,MPI_COMM_WORLD,status)
-        end if
+  !      if (row==col) then
+  !              call MPI_Comm_rank(My_row_comm,root_rowrank,err)
+  !              call MPI_Comm_rank(My_col_comm,root_colrank,err)
+  !      print*, my_rank
+  !              do i=1,4
+  !                      if (i/=row) then
+  !                              call MPI_Send(root_rowrank,1,MPI_INTEGER,&
+  !                               my_rank-row+i, tag,MPI_COMM_WORLD)       
+!                                call MPI_Send(root_colrank,1,MPI_INTEGER,&
+ !                                my_rank-col*4+(i*4), tag,MPI_COMM_WORLD)       
+  !                      end if
+   !             end do
+    !    else
+    !           print*, my_rank,5*(row-1),5*(col-1)
+    !             call MPI_Recv(root_rowrank, 1, MPI_INTEGER,5*(row-1)&
+    !                                    ,2,MPI_COMM_WORLD,status)
+    !             call MPI_Recv(root_colrank, 1, MPI_INTEGER,5*(col-1)&
+    !                                    ,3,MPI_COMM_WORLD,status)
+    !    end if
         print*, "found roots"
         cont=1
         do while (cont==1)
@@ -76,7 +76,7 @@ program prob3
                 !  lambda=dot_product(x,y)
                 call MPI_Allreduce(lambda,lambda,1,MPI_INTEGER,MPI_SUM, &
                                MPI_COMM_WORLD)
-                call MPI_Allreduce(y,y,100,MPI_INTEGER,MPI_SUM,root_rowrank,&
+                call MPI_Reduce(y,y,100,MPI_INTEGER,MPI_SUM,row-1,&
                                                 My_row_comm)
                 if (my_rank==0) then
                         error=abs(lambda-lambda_old)
@@ -88,6 +88,7 @@ program prob3
                 
                 if (row == col) then
                         lambda=0
+                        !not actually lambda but squares for norm
                         do i=1,n
                                 lambda=lambda+y(i,1)**2
                         end do
@@ -96,7 +97,7 @@ program prob3
                         lambda=1/SQRT(lambda)
                         x=y*lambda
                 end if
-                call MPI_Bcast(x,100,MPI_INTEGER,root_colrank,My_col_comm)
+                call MPI_Bcast(x,100,MPI_INTEGER,col-1,My_col_comm)
          
        end do 
         
