@@ -14,7 +14,7 @@ program apply_w_main
   double precision, allocatable, dimension(:, :) :: A, S 
 
   if ( debug ) then
-    n = 4 * 37 + 2  ! you can decrease this to check smaller problems
+    n = 4 * 2 + 2  ! you can decrease this to check smaller problems
     repeat = 1
 
     allocate(A(n, n), stat = status)
