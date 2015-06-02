@@ -26,6 +26,17 @@ tic
 end   
 toc
 
+
+
+tic
+       DOALL J=1,N
+          DO I=1,J
+             DO K=I,J
+                A(I,J)=A(I,J)+B(I,K)*C(K,J)
+             ENDDO
+          ENDDO
+       ENDDO
+toc
 error = norm(F - C, 1)
 if error > 1e-10
   warning(['The error is large. error = ', num2str(error)])
