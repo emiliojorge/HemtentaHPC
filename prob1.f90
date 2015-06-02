@@ -7,6 +7,7 @@ implicit none  ! recommended
         double precision :: lambda,norm,error
         double precision, dimension(1000,1000) :: A,cpA       
         double precision, dimension(1000,1) :: v,av
+        double precision, dimension(1,1000) :: vt
         double precision,  external :: dnrm2
         double precision,  external ::  ddot
         v = 1
@@ -16,19 +17,23 @@ implicit none  ! recommended
                         A(row,col)=SQRT(2.0d0*row+col)
                 end do
                 A(col,col)=1.5d0 !optimera??i
-                end do
+        end do
         call dlacpy('' ,n,n,A,n,cpA,n)
-        call dgetrf( n, n, cpA, n, ipiv, INFO )       
-        print*, "info dgetrf is ", INFO 
-        do j = 0, 25
+        call dgetrf( n, n, cpA, n, ipiv, INFO )      
+ 
+        do j = 1, 25
                 call dgetrs( 'N', n, 1, cpA, n, ipiv, v, n, INFO )
                 
                 norm=1.0d0/dnrm2(n,v,1)
                 call dscal(n,norm,v,1)
+                print*, norm
         end do 
-        call dgemv ('N', n, n, 1.0d0, A, n, v, 1, 0,av ,1)!kan jag anvanda A?
-
-        lambda = ddot(n, v, 1, av, 1)
+       ! print*, v
+        !call dgemv ('N', n, n, 1.0d0, A, n, v, 1, 0,av ,1)!kan jag anvanda A?
+        av=matmul(A,v)
+        !print*, av
+        lambda = ddot(n, av, 1, v, 1)
+        print*, "lambda is", lambda
         call daxpy(n, -1.0d0*lambda,v,1,av,1) 
         error = dnrm2(n,av,1)
         print*,"Error is ", error
