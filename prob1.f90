@@ -2,9 +2,9 @@ program prob1
 
 implicit none  ! recommended
         
-        integer ::  n,row,col,j,info,error
+        integer ::  n,row,col,j,info
         integer, dimension(1000,1) :: ipiv
-        double precision :: lambda,norm
+        double precision :: lambda,norm,error
         double precision, dimension(1000,1000) :: A,cpA       
         double precision, dimension(1000,1) :: v,av
         double precision,  external :: dnrm2
