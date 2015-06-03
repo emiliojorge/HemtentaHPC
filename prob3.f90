@@ -34,7 +34,7 @@ program prob3
         end if
         if (my_rank==0) then
                 iter=0
-                lambda_old = 100000.0d0
+                lambda_old = 0
         end if
         x=(1.0d0/400.0d0)
         cont=1
@@ -43,19 +43,27 @@ program prob3
                 if (my_rank==0)then
                         iter=iter+1  
                 end if
-                lambda=0
-                do i=1,100 
+                do i=1,100
+                         
                         y(i,1)=A(i,1)*x(i,1)
-                        lambda=lambda+y(i,1)*x(i,1)
                 end do
-                !  lambda=dot_product(x,y)
+                
+                 lambda=dot_product(x(:,1),y(:,1))
               
-                call MPI_Allreduce(lambda,tmp_lambda,1,MPI_DOUBLE,&
-                                MPI_SUM, MPI_COMM_WORLD,err)
+                call MPI_Reduce(lambda,tmp_lambda,1,MPI_DOUBLE,&
+                                MPI_SUM,0, MPI_COMM_WORLD,err)
                 call MPI_Reduce(y,tmp_y,100,MPI_DOUBLE,MPI_SUM,row-1,&
                                                 My_row_comm,err)
-                if(row==col) y=tmp_y
+                
+                if(row==col) then 
+                        y=tmp_y
+               
+                        if (iter==1) then
+                                print*," häääär", my_rank,y(1,1)
+                        end if
+                end if
                 if (my_rank==0) then
+                        lambda=tmp_lambda
                         error=abs(lambda-lambda_old)
                         lambda_old=lambda
                         print*,iter,lambda, error
@@ -65,15 +73,13 @@ program prob3
                 end if
                 call MPI_Bcast(cont,1,MPI_INT,0,MPI_COMM_WORLD,err)
                 if (row == col) then
-                        squares=0
-                        !not actually lambda but squares for norm
-                        do i=1,n
-                                squares=squares+y(i,1)**2
-                        end do
-                        
+                        squares=dot_product(y(:,1),y(:,1))
                         call MPI_Allreduce(squares,tmp_squares,1,&
-                                  MPI_DOUBLE,MPI_SUM,&  root_comm,err)
+                                  MPI_DOUBLE,MPI_SUM, root_comm,err)
                         squares=1/SQRT(tmp_squares)
+                        if(iter==2) then
+                        print*, sqrt(tmp_squares)
+                        end if
                         x=y*squares
                 end if
                 call MPI_Bcast(x,100,MPI_DOUBLE,col-1,My_col_comm,err)
