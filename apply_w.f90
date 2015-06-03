@@ -6,7 +6,7 @@ integer                           :: n
   integer :: i,j
 
 
-!$OMP parallel do  private(i,j) shared(A_tmp,A,n,W) schedule(static)
+!$OMP parallel do  private(i,j) shared(A_tmp,A,n,W) schedule(guided)
   do k = 2,n-1
     do j = 2,n-1
        A_tmp(j,k) =  W(1, 1) * A(j-1, k-1) + W(1,2) * A(j-1, k) + W(1, 3) * A(j-1,k+1) + &
@@ -15,9 +15,9 @@ integer                           :: n
     end do
   end do
 !$OMP end parallel do 
+!works as barrier which is good since we dont want to miss anything in A_tmp
 
-
-!$OMP parallel do  private(i,j) shared(A_tmp,A,n) schedule(static)
+!$OMP parallel do  private(i,j) shared(A_tmp,A,n) schedule(guided)
   do j = 2, n-1
         do i = 2, n-1
                A(i,j)= A_tmp(i,j)
