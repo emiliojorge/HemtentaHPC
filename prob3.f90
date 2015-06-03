@@ -36,31 +36,27 @@ program prob3
                 iter=0
                 lambda_old = 0
         end if
-        x=(1.0d0/400.0d0)
+        x=(1.0d0/20.0d0)
         cont=1
         
         do while (cont==1) 
                 if (my_rank==0)then
                         iter=iter+1  
                 end if
-                do i=1,100
                          
-                        y(i,1)=A(i,1)*x(i,1)
-                end do
-                
-                 lambda=dot_product(x(:,1),y(:,1))
-              
-                call MPI_Reduce(lambda,tmp_lambda,1,MPI_DOUBLE,&
-                                MPI_SUM,0, MPI_COMM_WORLD,err)
+                 y(:,1)=A(:,1)*x(:,1)
+                 !lambda=dot_product(x(:,1),y(:,1))
+                !
+                !call MPI_Reduce(lambda,tmp_lambda,1,MPI_DOUBLE,&
+                 !               MPI_SUM,0, MPI_COMM_WORLD,err)
                 call MPI_Reduce(y,tmp_y,100,MPI_DOUBLE,MPI_SUM,row-1,&
                                                 My_row_comm,err)
                 
                 if(row==col) then 
                         y=tmp_y
-               
-                        if (iter==1) then
-                                print*," häääär", my_rank,y(1,1)
-                        end if
+                        lambda=dot_product(x(:,1),y(:,1))
+                 call MPI_Reduce(lambda,tmp_lambda,1,MPI_DOUBLE,&
+                                MPI_SUM,0,root_comm ,err)
                 end if
                 if (my_rank==0) then
                         lambda=tmp_lambda
@@ -76,11 +72,7 @@ program prob3
                         squares=dot_product(y(:,1),y(:,1))
                         call MPI_Allreduce(squares,tmp_squares,1,&
                                   MPI_DOUBLE,MPI_SUM, root_comm,err)
-                        squares=1/SQRT(tmp_squares)
-                        if(iter==2) then
-                        print*, sqrt(tmp_squares)
-                        end if
-                        x=y*squares
+                        x=y/SQRT(tmp_squares)
                 end if
                 call MPI_Bcast(x,100,MPI_DOUBLE,col-1,My_col_comm,err)
                       
