@@ -1,5 +1,5 @@
 function mtriang 
-n = 4000;
+n = 400;
 A = triu(randn(n));
 B = triu(randn(n));
 
@@ -21,7 +21,7 @@ tic
    %utilizing columnfirst.
   for j=1:n %columnfirst
     for i=1:j
- %   C(i,j)=A(i,i:j)*B(i:j,j);
+    C(i,j)=dot(A(i,i:j),B(i:j,j));
     end
   end
 toc
@@ -38,8 +38,8 @@ A=A';
           end
        end
 toc
-C
-D
+
+
 error = norm(F - C, 1)
 error = norm(F - D, 1)
 if error > 1e-10
